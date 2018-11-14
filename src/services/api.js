@@ -108,14 +108,13 @@ export function fakeAccountLogin(params) {
   //   method: 'POST',
   //   body: params,
   // });
-  let { password, userName } = params; 
+  let { password, userName } = params;
   if (password === '888888' && userName === 'admin') {
     return {
       status: 'ok',
       type: 'account',
       currentAuthority: 'admin',
     };
-
   }
   if (password === '123456' && userName === 'user') {
     return {
@@ -148,15 +147,14 @@ export async function getFakeCaptcha(mobile) {
 
 // new
 export async function queryResources() {
-  return request('/api/productCategory/list');
+  return request('/api/resources/treeList');
 }
 
 export async function addResources(params) {
-  return request('/api/productCategory/add', {
+  return request('/api/resources/addOrEdit', {
     method: 'POST',
     body: {
       ...params,
-      method: 'post',
     },
   });
 }
