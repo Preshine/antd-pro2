@@ -152,7 +152,7 @@ export async function queryResources() {
 }
 
 export async function addResources(params) {
-  return request('/api/resources/add', {
+  return request('/api/productCategory/add', {
     method: 'POST',
     body: {
       ...params,
