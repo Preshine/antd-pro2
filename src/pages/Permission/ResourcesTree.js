@@ -31,11 +31,11 @@ class AddForm extends React.Component {
 
   render() {
     const { getFieldDecorator, dataSource, currentRecord } = this.props;
-    const onChange = function(value, selectedOptions) {
+    const onChange = function (value, selectedOptions) {
       console.log(value, selectedOptions);
     };
 
-    const filter = function(inputValue, path) {
+    const filter = function (inputValue, path) {
       return path.some(option => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1);
     };
 
@@ -147,7 +147,7 @@ export default class ResourcesTree extends PureComponent {
       payload: {
         ...fields,
       },
-      callback: function(msg) {
+      callback: function (msg) {
         this.handleModalVisible(false);
         this.handleModalLoading(false);
         message.success(msg || '添加成功');
@@ -161,8 +161,8 @@ export default class ResourcesTree extends PureComponent {
   handleDelete = id => {
     this.props.dispatch({
       type: 'resources/delete',
-      payload: id,
-      callback: function(msg) {
+      payload: { resId: id },
+      callback: function (msg) {
         message.success(msg || '删除成功');
       }.bind(this),
     });

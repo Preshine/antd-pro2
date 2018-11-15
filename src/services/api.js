@@ -158,3 +158,38 @@ export async function addResources(params) {
     },
   });
 }
+
+export async function deleteResources(params) {
+  return request('/api/resources/delete', {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function queryRole() {
+  return request('/api/role/list');
+}
+
+export async function addRole(params) {
+  return request('/api/role/addOrEdit', {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function addorEditRoleRes(params) {
+  return request('/api/role/addorEditRoleRes', {
+    method: 'POST',
+    body: {
+      ...params,
+    },
+  });
+}
+
+export async function getResByRoleId(roleId) {
+  return request(`/api/role/getResByRoleId?roleId=${roleId}`);
+}

@@ -1,16 +1,18 @@
-import { queryResources, queryFakeList, removeFakeList, addFakeList, updateFakeList } from '@/services/api';
+import { queryResources, queryRole, addRole, getResByRoleId, addorEditRoleRes, addFakeList, updateFakeList } from '@/services/api';
 
 export default {
   namespace: 'role',
 
   state: {
     list: [],
-    treeList: []
+    treeList: [],
+    itemDetail: {},
+    roleRes: {}
   },
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = [{
+      const response1 = [{
         "id": "fake-list-3",
         "owner": "周星星",
         "name": "Ant Design Pro",
@@ -77,7 +79,7 @@ export default {
           "id": "member3"
         }]
       }];
-      //yield call(queryFakeList, payload);
+      const response = yield call(queryRole, payload);
       yield put({
         type: 'queryList',
         payload: Array.isArray(response) ? response : [],
@@ -90,25 +92,45 @@ export default {
         payload: response,
       });
     },
-    *appendFetch({ payload }, { call, put }) {
-      const response = yield call(queryFakeList, payload);
+    *setDetail({ payload }, { put }) {
       yield put({
-        type: 'appendList',
-        payload: Array.isArray(response) ? response : [],
+        type: 'setRole',
+        payload
       });
     },
-    *submit({ payload }, { call, put }) {
-      let callback;
-      if (payload.id) {
-        callback = Object.keys(payload).length === 1 ? removeFakeList : updateFakeList;
-      } else {
-        callback = addFakeList;
-      }
-      const response = yield call(callback, payload); // post
+    *getResByRoleId({ payload }, { call, put }) {
+      const response = yield call(getResByRoleId, payload);
       yield put({
-        type: 'queryList',
+        type: 'roleRes',
         payload: response,
       });
+    },
+    *checkRes({ payload }, { call, put }) {
+      yield put({
+        type: 'roleRes',
+        payload
+      });
+    },
+    *submit({ payload, callback }, { call, put }) {
+      const response = yield call(addRole, payload);
+      if (response.success) {
+        const response = yield call(queryRole, payload);
+        put({
+          type: 'queryList',
+          payload: response,
+        });
+      }
+      if (callback) {
+        callback(response.message);
+      }
+    },
+    *saveRoleRes({ payload, callback }, { call }) {
+      const response = yield call(addorEditRoleRes, payload);
+      if (response.success) {
+        if (callback) {
+          callback(response.message);
+        }
+      }
     },
   },
 
@@ -125,10 +147,16 @@ export default {
         treeList: action.payload,
       };
     },
-    appendList(state, action) {
+    setRole(state, action) {
       return {
         ...state,
-        list: state.list.concat(action.payload),
+        itemDetail: action.payload.item,
+      };
+    },
+    roleRes(state, action) {
+      return {
+        ...state,
+        roleRes: action.payload,
       };
     },
   },

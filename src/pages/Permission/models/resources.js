@@ -1,4 +1,4 @@
-import { queryResources, removeRule, addResources } from '@/services/api';
+import { queryResources, deleteResources, addResources } from '@/services/api';
 
 export default {
   namespace: 'resources',
@@ -28,17 +28,23 @@ export default {
         callback(response.message);
       }
     },
-    *delete({payload, callback}, {put}) {
-      const response = {success: true};// yield call(deleteResources, payload);
+    *delete({ payload, callback }, { call, put }) {
+      const response = yield call(deleteResources, payload);
+      // yield put({
+      //   type: 'deleteById',
+      //   payload
+      // });
       if (response.success) {
+        const response = yield call(queryResources, payload);
         yield put({
-          type: 'deleteById',
-          payload
+          type: 'queryList',
+          payload: response,
         });
       }
       if (callback) {
-          callback();
+        callback();
       }
+
     }
   },
 

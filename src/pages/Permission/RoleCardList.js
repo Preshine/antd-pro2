@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react';
 import { findDOMNode } from 'react-dom';
 import { connect } from 'dva';
+import router from 'umi/router';
 import {
-  Card, Form, Select, Tree, Modal, Input, Button, Icon, Switch,
+  Card, Form, Select, Tree, Modal, Input, Button, Icon, Switch, message,
   Tooltip, List
 } from 'antd';
 
@@ -24,7 +25,9 @@ const SelectOption = Select.Option;
 @Form.create()
 class RoleCardList extends PureComponent {
 
-  state = { visible: false, treeVisible: false };
+  state = {
+    visible: false, treeVisible: false,
+  };
 
   formLayout = {
     labelCol: { span: 7 },
@@ -51,11 +54,28 @@ class RoleCardList extends PureComponent {
     });
   };
 
+  showDetail = item => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'role/setDetail',
+      payload: { item: item }
+    });
+    router.push('/permission/role-detail/' + item.id);
+  }
+
   showTreeModal = item => {
+    const { dispatch } = this.props;
+
     this.setState({
       treeVisible: true,
       current: item,
     });
+
+    dispatch({
+      type: 'role/getResByRoleId',
+      payload: item.id
+    });
+
   };
 
   showEditModal = item => {
@@ -83,12 +103,33 @@ class RoleCardList extends PureComponent {
     });
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      console.log(fieldsValue); return;
+      console.log(fieldsValue);
       fieldsValue.status = fieldsValue.status ? 1 : 0;
       dispatch({
         type: 'role/submit',
         payload: { id, ...fieldsValue },
       });
+    });
+  };
+
+  saveRes = e => {
+    e.preventDefault();
+    const { dispatch, role: { roleRes } } = this.props;
+
+    const { current } = this.state;
+    const id = current ? current.id : '';
+    setTimeout(() => this.addBtn.blur(), 0);
+    this.setState({
+      treeVisible: false,
+    });
+    console.log('roleRes', roleRes);
+
+    dispatch({
+      type: 'role/saveRoleRes',
+      payload: { roleId: id, res: roleRes.checked.join(',') },
+      callback: (msg) => {
+        message.success(msg || '添加成功');
+      }
     });
   };
 
@@ -122,10 +163,11 @@ class RoleCardList extends PureComponent {
 
   render() {
     const {
-      role: { list, treeList },
+      role: { list, treeList, roleRes },
       loading,
       form: { getFieldDecorator },
     } = this.props;
+
 
 
     const { visible, treeVisible, current = {} } = this.state;
@@ -226,7 +268,11 @@ class RoleCardList extends PureComponent {
 
       const onCheck = (checkedKeys) => {
         console.log('onCheck', checkedKeys);
-        this.setState({ checkedKeys });
+        this.props.dispatch({
+          type: 'role/checkRes',
+          payload: checkedKeys
+        })
+        // this.setState({ checkedKeys });
       }
 
       const onSelect = (selectedKeys, info) => {
@@ -250,11 +296,12 @@ class RoleCardList extends PureComponent {
       return (
         <Tree
           checkable
+          checkStrictly
           onExpand={onExpand}
           expandedKeys={this.state.expandedKeys}
           autoExpandParent={this.state.autoExpandParent}
           onCheck={onCheck}
-          checkedKeys={this.state.checkedKeys}
+          checkedKeys={roleRes}
           onSelect={onSelect}
           selectedKeys={this.state.selectedKeys}
         >
@@ -274,7 +321,7 @@ class RoleCardList extends PureComponent {
             dataSource={['', ...list]}
             renderItem={item =>
               item ? (
-                <List.Item key={item.id}>
+                <List.Item key={item.id} >
                   <Card hoverable className={styles.card}
                     actions={[
                       <Tooltip title="编辑">
@@ -309,6 +356,7 @@ class RoleCardList extends PureComponent {
                   >
                     <Card.Meta
                       // avatar={<img alt="" className={styles.cardAvatar} src={item.avatar} />}
+                      onClick={() => this.showDetail(item)}
                       title={<a>{item.name}</a>}
                       description={
                         <Ellipsis className={styles.item} lines={3}>
@@ -354,7 +402,7 @@ class RoleCardList extends PureComponent {
           bodyStyle={{ padding: '28px 0 0' }}
           destroyOnClose
           visible={treeVisible}
-          {...{ okText: '保存', onOk: this.handleSubmit, onCancel: this.handleCancel }}
+          {...{ okText: '保存', onOk: this.saveRes, onCancel: this.handleCancel }}
         >
           {getResTree()}
         </Modal>
