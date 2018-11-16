@@ -149,6 +149,9 @@ export async function getFakeCaptcha(mobile) {
 export async function queryResources() {
   return request('/api/resources/treeList');
 }
+export async function fetchResTreeByRole(roleId) {
+  return request(`/api/role/getResTreeList?roleId=${roleId}`);
+}
 
 export async function addResources(params) {
   return request('/api/resources/addOrEdit', {
@@ -192,4 +195,24 @@ export async function addorEditRoleRes(params) {
 
 export async function getResByRoleId(roleId) {
   return request(`/api/role/getResByRoleId?roleId=${roleId}`);
+}
+
+
+//user
+export async function queryUser() {
+  return request('/api/user/list');
+}
+
+export async function addUser(params) {
+  return request('/api/user/add', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function saveUserRole(params) {
+  return request('/api/user/saveUserRole', {
+    method: 'POST',
+    body: params,
+  });
 }

@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Card, Row, Col, Icon, Avatar, Tag, Divider, Spin, Input } from 'antd';
+import { Card, Row, Col, Icon, Table, Avatar, Tag, Divider, Spin, Input } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './RoleDetail.less';
 
@@ -11,6 +11,7 @@ import styles from './RoleDetail.less';
   currentUser: user.currentUser,
   currentUserLoading: loading.effects['user/fetchCurrent'],
   detailItem: role.itemDetail,
+  resTree: role.resTree,
   project,
   projectLoading: loading.effects['project/fetchNotice'],
 }))
@@ -26,8 +27,6 @@ class RoleDetail extends PureComponent {
     const { dispatch, detailItem } = this.props;
 
     const roleId = this.props.match.params.roleId;
-    console.log(roleId);
-    console.log(detailItem);
     dispatch({
       type: 'user/fetchCurrent',
     });
@@ -40,10 +39,10 @@ class RoleDetail extends PureComponent {
     dispatch({
       type: 'project/fetchNotice',
     });
-    // dispatch({
-    //   type: 'role/getRoleById',
-    //   payload: { roleId: roleId }
-    // });
+    dispatch({
+      type: 'role/fetchResTreeByRole',
+      payload: { roleId: roleId }
+    });
   }
 
   onTabChange = key => {
@@ -83,12 +82,34 @@ class RoleDetail extends PureComponent {
       currentUser,
       currentUserLoading,
       project: { notice },
+      loading,
+      resTree,
       projectLoading,
       match,
       location,
       children,
       detailItem
     } = this.props;
+
+    const columns = [
+      {
+        title: 'Name',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: 'Age',
+        dataIndex: 'age',
+        key: 'age',
+        width: '12%',
+      },
+      {
+        title: 'Address',
+        dataIndex: 'address',
+        width: '30%',
+        key: 'address',
+      },
+    ];
 
     const operationTabList = [
       {
@@ -109,7 +130,7 @@ class RoleDetail extends PureComponent {
       },
     ];
     const tabContent = {
-      resources: 'res',
+      resources: <Table loading={loading} pagination={false} columns={columns} dataSource={resTree} />,
       users: 'user'
     }
 

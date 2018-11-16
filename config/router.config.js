@@ -38,6 +38,11 @@ export default [
             path: '/permission/role-detail/:roleId',
             component: './Permission/RoleDetail',
           },
+          {
+            path: '/permission/user-list',
+            name: 'userList',
+            component: './Permission/UserList',
+          },
         ],
       },
       {

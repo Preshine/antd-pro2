@@ -44,6 +44,7 @@ export default {
   'menu.permission': '权限管理',
   'menu.permission.resourcesTree': '资源树',
   'menu.permission.roleList': '角色',
+  'menu.permission.userList': '用户',
   'menu.role.roleList': '角色管理',
   'menu.form.stepform': '分步表单',
   'menu.form.stepform.info': '分步表单（填写转账信息）',
