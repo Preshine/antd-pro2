@@ -1,4 +1,4 @@
-import { queryResources, queryRole, addRole, getResByRoleId, addorEditRoleRes, fetchResTreeByRole, updateFakeList } from '@/services/api';
+import { queryResources, queryRole, addRole, getResByRoleId, addorEditRoleRes, fetchResTreeByRole, queryUsersByrole } from '@/services/api';
 
 export default {
   namespace: 'role',
@@ -8,7 +8,8 @@ export default {
     treeList: [],
     itemDetail: {},
     roleRes: {},
-    resTree: []
+    resTree: [],
+    roleUsers: []
   },
 
   effects: {
@@ -93,6 +94,13 @@ export default {
         payload: response,
       });
     },
+    *fetchRoleUsers({ payload }, { call, put }) {
+      const response = yield call(queryUsersByrole, payload.roleId);
+      yield put({
+        type: 'userListByRole',
+        payload: response,
+      });
+    },
     *fetchResTreeByRole({ payload }, { call, put }) {
       const response = yield call(fetchResTreeByRole, payload.roleId);
       yield put({
@@ -171,6 +179,12 @@ export default {
       return {
         ...state,
         roleRes: action.payload,
+      };
+    },
+    userListByRole(state, action) {
+      return {
+        ...state,
+        roleUsers: action.payload,
       };
     },
   },

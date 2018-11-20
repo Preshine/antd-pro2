@@ -1,16 +1,24 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
+import moment from 'moment';
 import Link from 'umi/link';
 import router from 'umi/router';
-import { Card, Row, Col, Icon, Table, Avatar, Tag, Divider, Spin, Input } from 'antd';
+import { Card, Radio, Row, Col, Icon, Table, Avatar, Tag, Divider, List, Input } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './RoleDetail.less';
+
+const RadioButton = Radio.Button;
+const RadioGroup = Radio.Group;
+const { Search } = Input;
+
 
 @connect(({ loading, user, role, project }) => ({
   listLoading: loading.effects['list/fetch'],
   currentUser: user.currentUser,
   currentUserLoading: loading.effects['user/fetchCurrent'],
   detailItem: role.itemDetail,
+  roleUsers: role.roleUsers,
+  resTree: role.resTree,
   resTree: role.resTree,
   project,
   projectLoading: loading.effects['project/fetchNotice'],
@@ -41,6 +49,10 @@ class RoleDetail extends PureComponent {
     });
     dispatch({
       type: 'role/fetchResTreeByRole',
+      payload: { roleId: roleId }
+    });
+    dispatch({
+      type: 'role/fetchRoleUsers',
       payload: { roleId: roleId }
     });
   }
@@ -88,6 +100,7 @@ class RoleDetail extends PureComponent {
       match,
       location,
       children,
+      roleUsers,
       detailItem
     } = this.props;
 
@@ -111,6 +124,41 @@ class RoleDetail extends PureComponent {
       },
     ];
 
+    const paginationProps = {
+      showSizeChanger: true,
+      showQuickJumper: true,
+      pageSize: 5,
+      total: 50,
+    };
+
+    const ListContent = ({ data: { mobile, createTime, userName } }) => (
+      <div className={styles.listContent}>
+        <div className={styles.listContentItem}>
+          <span>手机号</span>
+          <p>{mobile}</p>
+        </div>
+        <div className={styles.listContentItem}>
+          <span>用户名</span>
+          <p>{userName}</p>
+        </div>
+        <div className={styles.listContentItem}>
+          <span>创建时间</span>
+          <p>{moment(createTime).format('YYYY-MM-DD HH:mm')}</p>
+        </div>
+      </div>
+    );
+
+    const extraContent = (
+      <div className={styles.extraContent}>
+        <RadioGroup defaultValue="all">
+          <RadioButton value="all">全部</RadioButton>
+          <RadioButton value="progress">进行中</RadioButton>
+          <RadioButton value="waiting">等待中</RadioButton>
+        </RadioGroup>
+        <Search className={styles.extraContentSearch} placeholder="请输入" onSearch={() => ({})} />
+      </div>
+    );
+
     const operationTabList = [
       {
         key: 'resources',
@@ -131,7 +179,34 @@ class RoleDetail extends PureComponent {
     ];
     const tabContent = {
       resources: <Table loading={loading} pagination={false} columns={columns} dataSource={resTree} />,
-      users: 'user'
+      users: <div className={styles.standardList}>
+        <Card
+          className={styles.listCard}
+          bordered={false}
+          title={'list'}
+          style={{ marginTop: 5 }}
+          bodyStyle={{ padding: '0 32px 40px 32px' }}
+          extra={extraContent}
+        >
+          <List
+            size="large"
+            rowKey="id"
+            loading={loading}
+            pagination={paginationProps}
+            dataSource={roleUsers}
+            renderItem={item => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={<Avatar src={item.logo} shape="square" size="large" />}
+                  title={<a href={item.href}>{item.title}</a>}
+                  description={item.remark}
+                />
+                <ListContent data={item} />
+              </List.Item>
+            )}
+          />
+        </Card>
+      </div>
     }
 
     return (

@@ -152,6 +152,9 @@ export async function queryResources() {
 export async function fetchResTreeByRole(roleId) {
   return request(`/api/role/getResTreeList?roleId=${roleId}`);
 }
+export async function queryUsersByrole(roleId) {
+  return request(`/api/role/getUsersByrole?roleId=${roleId}`);
+}
 
 export async function addResources(params) {
   return request('/api/resources/addOrEdit', {
