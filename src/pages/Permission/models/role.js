@@ -1,4 +1,4 @@
-import { queryResources, queryRole, addRole, getResByRoleId, addorEditRoleRes, fetchResTreeByRole, queryUsersByrole } from '@/services/api';
+import { queryResources, queryRole, addRole, getResByRoleId, addorEditRoleRes, fetchResTreeByRole, queryUsersByrole, deleteRole, handleRoleStatus } from '@/services/api';
 
 export default {
   namespace: 'role',
@@ -9,7 +9,7 @@ export default {
     itemDetail: {},
     roleRes: {},
     resTree: [],
-    roleUsers: []
+    roleUsers: {},
   },
 
   effects: {
@@ -95,7 +95,7 @@ export default {
       });
     },
     *fetchRoleUsers({ payload }, { call, put }) {
-      const response = yield call(queryUsersByrole, payload.roleId);
+      const response = yield call(queryUsersByrole, payload);
       yield put({
         type: 'userListByRole',
         payload: response,
@@ -114,6 +114,24 @@ export default {
         payload
       });
     },
+    *delete({ payload }, { call, put }) {
+      const response = yield call(deleteRole, payload.roleId);
+      if (response.success) {
+        yield put({
+          type: 'delete',
+          payload
+        });
+      }
+    },
+    *handleStatus({ payload }, { call, put }) {
+      const response = yield call(handleRoleStatus, payload);
+      if (response.success) {
+        yield put({
+          type: 'handleStatus',
+          payload
+        });
+      }
+    },
     *getResByRoleId({ payload }, { call, put }) {
       const response = yield call(getResByRoleId, payload);
       yield put({
@@ -130,14 +148,14 @@ export default {
     *submit({ payload, callback }, { call, put }) {
       const response = yield call(addRole, payload);
       if (response.success) {
+        if (callback) {
+          callback(response.message);
+        }
         const response = yield call(queryRole, payload);
-        put({
+        yield put({
           type: 'queryList',
-          payload: response,
+          payload: Array.isArray(response) ? response : [],
         });
-      }
-      if (callback) {
-        callback(response.message);
       }
     },
     *saveRoleRes({ payload, callback }, { call }) {
@@ -185,6 +203,23 @@ export default {
       return {
         ...state,
         roleUsers: action.payload,
+      };
+    },
+    handleStatus(state, action) {
+      return {
+        ...state,
+        list: state.list.map(role => {
+          if (role.id == action.payload.roleId) {
+            role.status = action.payload.status;
+          }
+          return role;
+        })
+      };
+    },
+    delete(state, action) {
+      return {
+        ...state,
+        list: state.list.filter(role => role.id != action.payload.roleId),
       };
     },
   },

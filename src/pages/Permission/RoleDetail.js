@@ -1,14 +1,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
-import Link from 'umi/link';
-import router from 'umi/router';
 import { Card, Radio, Row, Col, Icon, Table, Avatar, Tag, Divider, List, Input } from 'antd';
 import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './RoleDetail.less';
 
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
 const { Search } = Input;
 
 
@@ -18,7 +14,6 @@ const { Search } = Input;
   currentUserLoading: loading.effects['user/fetchCurrent'],
   detailItem: role.itemDetail,
   roleUsers: role.roleUsers,
-  resTree: role.resTree,
   resTree: role.resTree,
   project,
   projectLoading: loading.effects['project/fetchNotice'],
@@ -101,34 +96,48 @@ class RoleDetail extends PureComponent {
       location,
       children,
       roleUsers,
-      detailItem
+      detailItem,
+      dispatch,
     } = this.props;
 
     const columns = [
       {
-        title: 'Name',
+        title: '资源名称',
         dataIndex: 'name',
         key: 'name',
       },
       {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: '资源类型',
+        dataIndex: 'resType',
+        key: 'resType',
         width: '12%',
       },
       {
-        title: 'Address',
-        dataIndex: 'address',
-        width: '30%',
-        key: 'address',
+        title: 'var1',
+        dataIndex: 'var1',
+        key: 'var1',
+      },
+      {
+        title: 'var2',
+        dataIndex: 'var2',
+        key: 'var2',
+      },
+      {
+        title: 'var3',
+        dataIndex: 'var3',
+        key: 'var3',
       },
     ];
-
     const paginationProps = {
       showSizeChanger: true,
       showQuickJumper: true,
-      pageSize: 5,
-      total: 50,
+      onChange: (current, pageSize) => {
+        const params = { current, pageSize, roleId: detailItem.id }
+        dispatch({
+          type: 'role/fetchRoleUsers',
+          payload: params
+        });
+      },
     };
 
     const ListContent = ({ data: { mobile, createTime, userName } }) => (
@@ -150,12 +159,12 @@ class RoleDetail extends PureComponent {
 
     const extraContent = (
       <div className={styles.extraContent}>
-        <RadioGroup defaultValue="all">
-          <RadioButton value="all">全部</RadioButton>
-          <RadioButton value="progress">进行中</RadioButton>
-          <RadioButton value="waiting">等待中</RadioButton>
-        </RadioGroup>
-        <Search className={styles.extraContentSearch} placeholder="请输入" onSearch={() => ({})} />
+        <Search className={styles.extraContentSearch} placeholder="请输入用户名或者手机号" onSearch={(val) => {
+          dispatch({
+            type: 'role/fetchRoleUsers',
+            payload: { roleId: detailItem.id, mobileOrUserName: val }
+          });
+        }} />
       </div>
     );
 
@@ -183,7 +192,6 @@ class RoleDetail extends PureComponent {
         <Card
           className={styles.listCard}
           bordered={false}
-          title={'list'}
           style={{ marginTop: 5 }}
           bodyStyle={{ padding: '0 32px 40px 32px' }}
           extra={extraContent}
@@ -192,8 +200,10 @@ class RoleDetail extends PureComponent {
             size="large"
             rowKey="id"
             loading={loading}
-            pagination={paginationProps}
-            dataSource={roleUsers}
+            pagination={{
+              ...paginationProps, ...roleUsers.pagination
+            }}
+            dataSource={roleUsers.list}
             renderItem={item => (
               <List.Item>
                 <List.Item.Meta

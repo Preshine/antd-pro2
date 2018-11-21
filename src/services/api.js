@@ -152,8 +152,8 @@ export async function queryResources() {
 export async function fetchResTreeByRole(roleId) {
   return request(`/api/role/getResTreeList?roleId=${roleId}`);
 }
-export async function queryUsersByrole(roleId) {
-  return request(`/api/role/getUsersByrole?roleId=${roleId}`);
+export async function queryUsersByrole(params) {
+  return request(`/api/role/getUsersByrole?${stringify(params)}`);
 }
 
 export async function addResources(params) {
@@ -161,6 +161,24 @@ export async function addResources(params) {
     method: 'POST',
     body: {
       ...params,
+    },
+  });
+}
+
+export async function handleRoleStatus(params) {
+  return request('/api/role/handleStatus', {
+    method: 'POST',
+    body: {
+      ...params
+    },
+  });
+}
+
+export async function deleteRole(roleId) {
+  return request('/api/role/delete', {
+    method: 'POST',
+    body: {
+      roleId
     },
   });
 }
@@ -202,14 +220,21 @@ export async function getResByRoleId(roleId) {
 
 
 //user
-export async function queryUser() {
-  return request('/api/user/list');
+export async function queryUser(params) {
+  return request(`/api/user/list?${stringify(params)}`);
 }
 
 export async function addUser(params) {
   return request('/api/user/add', {
     method: 'POST',
     body: params,
+  });
+}
+
+export async function deleteUsers(ids) {
+  return request('/api/user/delete', {
+    method: 'POST',
+    body: ids,
   });
 }
 

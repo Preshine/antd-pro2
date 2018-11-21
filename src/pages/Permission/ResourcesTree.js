@@ -63,17 +63,9 @@ class AddForm extends React.Component {
             rules: [{ required: true, message: '填写资源名称' }],
           })(<Input placeholder="填写资源名称" />)}
         </FormItem>
-        <FormItem label="var1">
-          {getFieldDecorator('var1', {})(<Input placeholder="填写资源扩展属性1" />)}
-        </FormItem>
-        <FormItem label="var2">
-          {getFieldDecorator('var2', {})(<Input placeholder="填写资源扩展属性2" />)}
-        </FormItem>
-        <FormItem label="var3">
-          {getFieldDecorator('var3', {})(<Input placeholder="填写资源扩展属性3" />)}
-        </FormItem>
         <FormItem label="资源类型">
           {getFieldDecorator('resType', {
+            initialValue: (currentRecord && currentRecord.resType) || 'menu',
             rules: [{ required: true, message: '选择资源类型' }],
           })(
             <Select defaultValue="menu">
@@ -85,6 +77,21 @@ class AddForm extends React.Component {
               <Option value="controller">控制器</Option>
             </Select>
           )}
+        </FormItem>
+        <FormItem label="var1">
+          {getFieldDecorator('var1', {
+            initialValue: (currentRecord && currentRecord.var1),
+          })(<Input placeholder="填写资源扩展属性1" />)}
+        </FormItem>
+        <FormItem label="var2">
+          {getFieldDecorator('var2', {
+            initialValue: (currentRecord && currentRecord.var2),
+          })(<Input placeholder="填写资源扩展属性2" />)}
+        </FormItem>
+        <FormItem label="var3">
+          {getFieldDecorator('var3', {
+            initialValue: (currentRecord && currentRecord.var3),
+          })(<Input placeholder="填写资源扩展属性3" />)}
         </FormItem>
       </Form>
     );
@@ -198,21 +205,30 @@ export default class ResourcesTree extends PureComponent {
 
     const columns = [
       {
-        title: 'Name',
+        title: '资源名称',
         dataIndex: 'name',
         key: 'name',
       },
       {
-        title: 'Age',
-        dataIndex: 'age',
-        key: 'age',
+        title: '资源类型',
+        dataIndex: 'resType',
+        key: 'resType',
         width: '12%',
       },
       {
-        title: 'Address',
-        dataIndex: 'address',
-        width: '30%',
-        key: 'address',
+        title: 'var1',
+        dataIndex: 'var1',
+        key: 'var1',
+      },
+      {
+        title: 'var2',
+        dataIndex: 'var2',
+        key: 'var2',
+      },
+      {
+        title: 'var3',
+        dataIndex: 'var3',
+        key: 'var3',
       },
       {
         title: 'Action',

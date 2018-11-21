@@ -2,6 +2,7 @@ import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
 import moment from 'moment';
 import {
+  Tag, 
   Row,
   Col,
   Card,
@@ -11,15 +12,9 @@ import {
   Select,
   Icon,
   Button,
-  Dropdown,
-  Menu,
-  InputNumber,
-  DatePicker,
   Modal,
   message,
   Badge,
-  Divider,
-  Steps,
   Radio,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
@@ -28,7 +23,6 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './UserList.less';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
 const { TextArea } = Input;
 const { Option } = Select;
 const RadioGroup = Radio.Group;
@@ -137,9 +131,7 @@ const CreateForm = Form.create()(props => {
           </span>
         )}
       >
-        {form.getFieldDecorator('remark', {
-          rules: [{ required: true, message: '输入用户的描述信息!', whitespace: true }],
-        })(
+        {form.getFieldDecorator('remark')(
           <TextArea rows={4} placeholder="输入用户的描述信息" />
         )}
       </FormItem>
@@ -159,14 +151,14 @@ class UpdateForm extends PureComponent {
   }
 
   okHandle = () => {
-    const { form,handleUpdateModalVisible, values, dispatch } = this.props;
+    const { form, handleUpdateModalVisible, values, dispatch } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       console.log('values', values);
       console.log('fieldsValue', fieldsValue);
       dispatch({
         type: 'rule/saveRole',
-        payload: { userId: values.uid, roleIds: fieldsValue.roleIds.join(',') }
+        payload: { userId: values.id, roleIds: fieldsValue.roleIds.join(',') }
       });
       handleUpdateModalVisible();
       message.success('角色分配成功');
@@ -257,6 +249,7 @@ class UserList extends PureComponent {
     },
     {
       title: '手机号',
+      needTotal: true,
       dataIndex: 'mobile',
     },
     {
@@ -283,6 +276,26 @@ class UserList extends PureComponent {
       render(val) {
         return <Badge status={statusMap[val]} text={status[val]} />;
       },
+    },
+    {
+      title: '身份角色',
+      dataIndex: 'roleNames',
+      render(val) {
+        let roles = val.split(',');
+        const tagColor = ['magenta', 'red', 'volcano', 'orange', 'gold', 'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'];
+        let tags = [], endTag = roles.length > 5;
+        if (roles.length > 0) {
+
+          if (endTag) {
+            roles = roles.splice(0, 5);
+          }
+          tags = roles.map((role, i) => <Tag color={tagColor[i]}>{role}</Tag>);
+          if (endTag) {
+            tags.push(<Tag color={tagColor[5]}>. . .</Tag>);
+          }
+        }
+        return tags;
+      }
     },
     {
       title: '创建用户时间',
@@ -321,13 +334,13 @@ class UserList extends PureComponent {
     }, {});
 
     const params = {
-      currentPage: pagination.current,
+      current: pagination.current,
       pageSize: pagination.pageSize,
       ...formValues,
       ...filters,
     };
     if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
+      params.sorter = `${sorter.field}_${sorter.order.substr(0, sorter.order.length - 3)}`;
     }
 
     dispatch({
@@ -355,29 +368,25 @@ class UserList extends PureComponent {
     });
   };
 
-  handleMenuClick = e => {
+
+  deleteUsers = () => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
 
     if (!selectedRows) return;
-    switch (e.key) {
-      case 'remove':
-        dispatch({
-          type: 'rule/remove',
-          payload: {
-            key: selectedRows.map(row => row.key),
-          },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
-          },
+
+    dispatch({
+      type: 'rule/delete',
+      payload: {
+        ids: selectedRows.map(row => row.id).join(),
+      },
+      callback: () => {
+        this.setState({
+          selectedRows: [],
         });
-        break;
-      default:
-        break;
-    }
-  };
+      },
+    });
+  }
 
   handleSelectRows = rows => {
     this.setState({
@@ -394,8 +403,7 @@ class UserList extends PureComponent {
       if (err) return;
 
       const values = {
-        ...fieldsValue,
-        updatedAt: fieldsValue.updatedAt && fieldsValue.updatedAt.valueOf(),
+        ...fieldsValue
       };
 
       this.setState({
@@ -443,18 +451,13 @@ class UserList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="用户名">
+              {getFieldDecorator('userName')(<Input placeholder="请输入用户名" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
+            <FormItem label="手机号">
+              {getFieldDecorator('mobile')(<Input placeholder="请输入手机号" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
@@ -483,52 +486,36 @@ class UserList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="用户名">
+              {getFieldDecorator('userName')(<Input placeholder="请输入用户名" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+            <FormItem label="手机号">
+              {getFieldDecorator('mobile')(<Input placeholder="请输入手机号" />)}
+            </FormItem>
+          </Col>
+          <Col md={8} sm={24}>
+            <FormItem label="性别">
+              {getFieldDecorator('sex')(
+                <Select placeholder="请选择性别" style={{ width: '100%' }}>
+                  <Option value="1">男</Option>
+                  <Option value="0">女</Option>
+                  <Option value="2">保密</Option>
                 </Select>
               )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="调用次数">
-              {getFieldDecorator('number')(<InputNumber style={{ width: '100%' }} />)}
             </FormItem>
           </Col>
         </Row>
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="更新日期">
-              {getFieldDecorator('date')(
-                <DatePicker style={{ width: '100%' }} placeholder="请输入更新日期" />
-              )}
+            <FormItem label="邮箱">
+              {getFieldDecorator('email')(<Input placeholder="请输入邮箱" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status3')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          <Col md={8} sm={24}>
-            <FormItem label="使用状态">
-              {getFieldDecorator('status4')(
-                <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
-                </Select>
-              )}
+            <FormItem label="真实姓名">
+              {getFieldDecorator('realName')(<Input placeholder="请输入真实姓名" />)}
             </FormItem>
           </Col>
         </Row>
@@ -562,12 +549,6 @@ class UserList extends PureComponent {
       dispatch
     } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, formVals } = this.state;
-    const menu = (
-      <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
-        <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
-      </Menu>
-    );
 
     const parentMethods = {
       handleAdd: this.handleAdd,
@@ -577,7 +558,7 @@ class UserList extends PureComponent {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
     };
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper title="用户列表">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -587,12 +568,7 @@ class UserList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
-                  <Dropdown overlay={menu}>
-                    <Button>
-                      更多操作 <Icon type="down" />
-                    </Button>
-                  </Dropdown>
+                  <Button onClick={this.deleteUsers}>删除</Button>
                 </span>
               )}
             </div>
@@ -600,6 +576,7 @@ class UserList extends PureComponent {
               selectedRows={selectedRows}
               loading={loading}
               data={data}
+              rowKey="id"
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
               onChange={this.handleStandardTableChange}

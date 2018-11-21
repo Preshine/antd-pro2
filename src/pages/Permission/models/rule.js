@@ -1,4 +1,4 @@
-import { queryUser, removeRule, addUser, updateRule,saveUserRole } from '@/services/api';
+import { queryUser, deleteUsers, addUser, updateRule, saveUserRole } from '@/services/api';
 
 export default {
   namespace: 'rule',
@@ -20,35 +20,36 @@ export default {
     },
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addUser, payload);
-      // yield put({
-      //   type: 'add',
-      //   payload: response,
-      // });
-      if (callback) callback();
+      if (response.success) {
+        if (callback) callback();
+        const data = yield call(queryUser, {});
+        yield put({
+          type: 'save',
+          payload: data,
+        });
+      }
     },
     *saveRole({ payload, callback }, { call, put }) {
       const response = yield call(saveUserRole, payload);
-      // yield put({
-      //   type: 'add',
-      //   payload: response,
-      // });
-      if (callback) callback();
+      if (response.success) {
+        if (callback) callback();
+        const data = yield call(queryUser, {});
+        yield put({
+          type: 'save',
+          payload: data,
+        });
+      }
     },
-    *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
-    },
-    *update({ payload, callback }, { call, put }) {
-      const response = yield call(updateRule, payload);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-      if (callback) callback();
+    *delete({ payload, callback }, { call, put }) {
+      const response = yield call(deleteUsers, payload);
+      if (response.success) {
+        if (callback) callback();
+        const data = yield call(queryUser, {});
+        yield put({
+          type: 'save',
+          payload: data,
+        });
+      }
     },
   },
 

@@ -142,10 +142,9 @@ class RoleCardList extends PureComponent {
       cancelText: '取消',
       onOk: () => {
         const { dispatch } = this.props;
-        return;
         dispatch({
           type: 'role/delete',
-          payload: { id: item.id },
+          payload: { roleId: item.id },
         });
       },
     });
@@ -153,10 +152,9 @@ class RoleCardList extends PureComponent {
 
   handleStatus = item => {
     const { dispatch, form } = this.props;
-    return;
     dispatch({
       type: 'role/handleStatus',
-      payload: { id: item.id, status: item.status == 1 ? 0 : 1 },
+      payload: { roleId: item.id, status: item.status == 1 ? 0 : 1 },
     });
 
   }
