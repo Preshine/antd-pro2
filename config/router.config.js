@@ -46,6 +46,18 @@ export default [
         ],
       },
       {
+        name: 'account',
+        icon: 'user',
+        path: '/account',
+        routes: [
+          {
+            path: '/account/center',
+            name: 'center',
+            component: './Account/Profile/Center',
+          },
+        ],
+      },
+      {
         name: 'result',
         icon: 'check-circle-o',
         path: '/result',
