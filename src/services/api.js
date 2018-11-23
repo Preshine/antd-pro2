@@ -104,10 +104,10 @@ export async function updateFakeList(params) {
 }
 
 export function fakeAccountLogin(params) {
-  // return request('/api/login/account', {
-  //   method: 'POST',
-  //   body: params,
-  // });
+  return request('/api/login/login', {
+    method: 'POST',
+    body: params,
+  });
   let { password, userName } = params;
   if (password === '888888' && userName === 'admin') {
     return {

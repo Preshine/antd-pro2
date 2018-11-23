@@ -15,7 +15,6 @@ export default [
     path: '/',
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
-    authority: ['admin', 'user'],
     routes: [
       // permission
       {
@@ -26,7 +25,6 @@ export default [
           {
             path: '/permission/resources-tree',
             name: 'resourcesTree',
-            authority: ['admin'],
             component: './Permission/ResourcesTree',
           },
           {

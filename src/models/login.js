@@ -14,14 +14,18 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-      // const response = yield call(fakeAccountLogin, payload);
-      const response = yield fakeAccountLogin(payload);
+      const response = yield call(fakeAccountLogin, payload);
+      // const response = yield fakeAccountLogin(payload);
+      response.status = 'ok';
+      response.type = 'account';
+      // response.obj.currentAuthority = 'admin';
+      console.log('response', response)
       yield put({
         type: 'changeLoginStatus',
         payload: response,
       });
       // Login successfully
-      if (response.status === 'ok') {
+      if (response.success) {
         reloadAuthorized();
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
@@ -68,7 +72,7 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
+      setAuthority(payload.obj.currentAuthority);
       return {
         ...state,
         status: payload.status,

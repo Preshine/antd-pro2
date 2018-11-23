@@ -107,7 +107,7 @@ class RoleCardList extends PureComponent {
       fieldsValue.status = fieldsValue.status ? 1 : 0;
       dispatch({
         type: 'role/submit',
-        payload: { id, ...fieldsValue },
+        payload: { roleId: id, ...fieldsValue },
       });
     });
   };

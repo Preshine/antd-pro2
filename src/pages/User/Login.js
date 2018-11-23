@@ -80,8 +80,8 @@ class LoginPage extends Component {
             {login.status === 'error' &&
               login.type === 'account' &&
               !submitting &&
-              this.renderMessage('账户或密码错误（admin/888888）')}
-            <UserName name="userName" placeholder="admin/user" />
+              this.renderMessage('账户或密码错误（admin/123456）')}
+            <UserName name="mobile" placeholder="admin/user" />
             <Password
               name="password"
               placeholder="888888/123456"

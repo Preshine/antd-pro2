@@ -19,6 +19,7 @@ function isPromise(obj) {
  * @param { 未通过的组件 no pass components } Exception
  */
 const checkPermissions = (authority, currentAuthority, target, Exception) => {
+  debugger;
   // 没有判定权限.默认查看所有
   // Retirement authority, return target;
   if (!authority) {
@@ -46,11 +47,8 @@ const checkPermissions = (authority, currentAuthority, target, Exception) => {
       return target;
     }
     if (Array.isArray(currentAuthority)) {
-      for (let i = 0; i < currentAuthority.length; i += 1) {
-        const element = currentAuthority[i];
-        if (authority.indexOf(element) >= 0) {
-          return target;
-        }
+      if (currentAuthority.indexOf(authority) >= 0) {
+        return target;
       }
     }
     return Exception;

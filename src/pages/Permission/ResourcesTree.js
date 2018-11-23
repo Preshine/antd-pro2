@@ -78,19 +78,24 @@ class AddForm extends React.Component {
             </Select>
           )}
         </FormItem>
+        <FormItem label="资源路径">
+          {getFieldDecorator('path', {
+            initialValue: (currentRecord && currentRecord.path) || '',
+          })(<Input placeholder="填写资源扩展属性1" />)}
+        </FormItem>
         <FormItem label="var1">
           {getFieldDecorator('var1', {
-            initialValue: (currentRecord && currentRecord.var1),
+            initialValue: (currentRecord && currentRecord.var1) || '',
           })(<Input placeholder="填写资源扩展属性1" />)}
         </FormItem>
         <FormItem label="var2">
           {getFieldDecorator('var2', {
-            initialValue: (currentRecord && currentRecord.var2),
+            initialValue: (currentRecord && currentRecord.var2) || '',
           })(<Input placeholder="填写资源扩展属性2" />)}
         </FormItem>
         <FormItem label="var3">
           {getFieldDecorator('var3', {
-            initialValue: (currentRecord && currentRecord.var3),
+            initialValue: (currentRecord && currentRecord.var3) || '',
           })(<Input placeholder="填写资源扩展属性3" />)}
         </FormItem>
       </Form>
@@ -148,10 +153,13 @@ export default class ResourcesTree extends PureComponent {
   }
 
   handleAdd = fields => {
+    const { currentRecord } = this.state;
+    const id = currentRecord ? currentRecord.id : '';
     this.handleModalLoading(true);
     this.props.dispatch({
       type: 'resources/add',
       payload: {
+        resId:id,
         ...fields,
       },
       callback: function (msg) {
@@ -214,6 +222,11 @@ export default class ResourcesTree extends PureComponent {
         dataIndex: 'resType',
         key: 'resType',
         width: '12%',
+      },
+      {
+        title: '资源路径',
+        dataIndex: 'path',
+        key: 'path',
       },
       {
         title: 'var1',

@@ -17,12 +17,15 @@ import Footer from './Footer';
 import Header from './Header';
 import Context from './MenuContext';
 import Exception403 from '../pages/Exception/403';
+import { getAuthority } from '@/utils/authority';
+
 
 const { Content } = Layout;
+const authorityObj = getAuthority();
 
 // Conversion router to menu.
-function formatter(data, parentPath = '', parentAuthority, parentName) {
-  return data.map(item => {
+function formatter(data, parentPath = '', parentAuthority, parentName, isAll) {
+  return data.filter(item => isAll || authorityObj.indexOf(item.path) > -1).map(item => {
     let locale = 'menu';
     if (parentName && item.name) {
       locale = `${parentName}.${item.name}`;
@@ -36,8 +39,8 @@ function formatter(data, parentPath = '', parentAuthority, parentName) {
       locale,
       authority: item.authority || parentAuthority,
     };
-    if (item.routes) {
-      const children = formatter(item.routes, `${parentPath}${item.path}/`, item.authority, locale);
+    if (item.routes && (isAll || authorityObj.indexOf(item.path) > -1)) {
+      const children = formatter(item.routes, `${parentPath}${item.path}/`, item.authority, locale, isAll);
       // Reduce memory usage
       result.children = children;
     }
@@ -132,11 +135,12 @@ class BasicLayout extends React.PureComponent {
     };
   }
 
-  getMenuData() {
+  getMenuData(isAll) {
     const {
       route: { routes },
     } = this.props;
-    return formatter(routes);
+
+    return formatter(routes, null, null, null, isAll);
   }
 
   /**
@@ -154,7 +158,7 @@ class BasicLayout extends React.PureComponent {
         routerMap[menuItem.path] = menuItem;
       });
     };
-    mergeMenuAndRouter(this.getMenuData());
+    mergeMenuAndRouter(this.getMenuData(true));
     return routerMap;
   }
 
@@ -224,8 +228,11 @@ class BasicLayout extends React.PureComponent {
     } = this.props;
     const { isMobile } = this.state;
     const isTop = PropsLayout === 'topmenu';
-    const menuData = this.getMenuData();
+    const menuData = this.getMenuData(false);
     const routerConfig = this.matchParamsPath(pathname);
+    console.log('routerConfig', routerConfig)
+    console.log('breadcrumbNameMap', this.breadcrumbNameMap)
+
     const layout = (
       <Layout>
         {isTop && !isMobile ? null : (
@@ -253,7 +260,7 @@ class BasicLayout extends React.PureComponent {
             {...this.props}
           />
           <Content style={this.getContentStyle()}>
-            <Authorized authority={routerConfig.authority} noMatch={<Exception403 />}>
+            <Authorized authority={routerConfig ? routerConfig.path : ''} noMatch={<Exception403 />}>
               {children}
             </Authorized>
           </Content>
