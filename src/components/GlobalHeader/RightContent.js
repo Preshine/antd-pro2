@@ -51,10 +51,10 @@ export default class GlobalHeaderRight extends PureComponent {
   render() {
     const {
       currentUser,
-      fetchingNotices,
-      onNoticeVisibleChange,
+      // fetchingNotices,
+      // onNoticeVisibleChange,
       onMenuClick,
-      onNoticeClear,
+      // onNoticeClear,
       theme,
     } = this.props;
     const menu = (
@@ -78,7 +78,7 @@ export default class GlobalHeaderRight extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-    const noticeData = this.getNoticeData();
+    // const noticeData = this.getNoticeData();
     let className = styles.right;
     if (theme === 'dark') {
       className = `${styles.right}  ${styles.dark}`;
@@ -111,7 +111,7 @@ export default class GlobalHeaderRight extends PureComponent {
             <Icon type="question-circle-o" />
           </a>
         </Tooltip>
-        <NoticeIcon
+        {/* <NoticeIcon
           className={styles.action}
           count={currentUser.notifyCount}
           onItemClick={(item, tabProps) => {
@@ -140,7 +140,7 @@ export default class GlobalHeaderRight extends PureComponent {
             emptyText={formatMessage({ id: 'component.globalHeader.event.empty' })}
             emptyImage="https://gw.alipayobjects.com/zos/rmsportal/HsIsxMZiWKrNUavQUXqx.svg"
           />
-        </NoticeIcon>
+        </NoticeIcon> */}
         {currentUser.name ? (
           <Dropdown overlay={menu}>
             <span className={`${styles.action} ${styles.account}`}>
